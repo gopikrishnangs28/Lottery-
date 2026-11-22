@@ -1,1 +1,24 @@
+name: Update results
 
+on:
+  schedule:
+    - cron: 0,20,40 7-10 * * *
+    - cron: 0,20,40 12-16 * * *
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read the result page
+        run: python3 scrape.py
+      - name: Save results.json if it changed
+        run: |
+          git config user.name results-bot
+          git config user.email results-bot@users.noreply.github.com
+          git add results.json
+          git diff --cached --quiet || (git commit -m Update-results && git push)
